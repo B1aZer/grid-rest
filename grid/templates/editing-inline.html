@@ -80,6 +80,7 @@
                                     }
                                 }
                             }
+                            //sort: { field: "id", dir: "desc" }
                         });
 
                     $("#grid").kendoGrid({
@@ -88,7 +89,6 @@
                         height: 430,
                         toolbar: ["create"],
                         columns: [
-                            {field: "id", title: "ProductID", width: "100px" },
                             "ProductName",
                             { field: "UnitPrice", title: "Unit Price", format: "{0:c}", width: "100px" },
                             { field: "UnitsInStock", title:"Units In Stock", width: "100px" },
