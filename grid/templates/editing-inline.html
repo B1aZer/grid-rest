@@ -10,6 +10,7 @@
     <script src="/static/js/jquery.min.js"></script>
     <script src="/static/js/kendo.web.min.js"></script>
     <script src="/static/js/console.js"></script>
+    <script src="/static/js/ajax.post.fix.js"></script>
 </head>
 <body>
             <div id="example" class="k-content">
@@ -17,38 +18,41 @@
 
             <script>
                 $(document).ready(function () {
-                    var crudServiceBaseUrl = "http://demos.kendoui.com/service",
+                    var crudServiceBaseUrl = "",
                         dataSource = new kendo.data.DataSource({
                             transport: {
                                 read:  {
-                                    url: crudServiceBaseUrl + "/Products",
-                                    dataType: "jsonp"
+                                    url: "/products/",
+                                    type: "GET",
+                                    dataType: "json"
                                 },
                                 update: {
-                                    url: crudServiceBaseUrl + "/Products/Update",
-                                    dataType: "jsonp"
+                                    url: "/products/",
+                                    type: "PUT",
+                                    dataType: "json"
                                 },
                                 destroy: {
-                                    url: crudServiceBaseUrl + "/Products/Destroy",
-                                    dataType: "jsonp"
+                                    url: "/products/",
+                                    type: "DELETE",
+                                    dataType: "json"
                                 },
                                 create: {
-                                    url: crudServiceBaseUrl + "/Products/Create",
-                                    dataType: "jsonp"
+                                    url: "/products/",
+                                    type: "POST",
+                                    contentType: "application/json",
+                                    dataType: "json"
                                 },
-                                parameterMap: function(options, operation) {
-                                    if (operation !== "read" && options.models) {
-                                        return {models: kendo.stringify(options.models)};
-                                    }
+                                parameterMap: function(data, type) {
+                                    return kendo.stringify(data);
                                 }
                             },
-                            batch: true,
+                            batch: false,
                             pageSize: 20,
                             schema: {
                                 model: {
-                                    id: "ProductID",
+                                    id: "id",
                                     fields: {
-                                        ProductID: { editable: false, nullable: true },
+                                        id: { editable: false, nullable: true },
                                         ProductName: { validation: { required: true } },
                                         UnitPrice: { type: "number", validation: { required: true, min: 1} },
                                         Discontinued: { type: "boolean" },
@@ -64,6 +68,7 @@
                         height: 430,
                         toolbar: ["create"],
                         columns: [
+                            {field: "id", title: "ProductID", width: "100px" },
                             "ProductName",
                             { field: "UnitPrice", title: "Unit Price", format: "{0:c}", width: "100px" },
                             { field: "UnitsInStock", title:"Units In Stock", width: "100px" },
