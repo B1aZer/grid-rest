@@ -17,86 +17,134 @@
             <div id="example" class="k-content">
             <div id="grid"></div>
 
+            <script type="text/x-kendo-template" id="template">
+                <div class="tabstrip">
+                    <ul>
+                        <li class="k-state-active">
+                           Products
+                        </li>
+                    </ul>
+                    <div>
+                        <div class="products"></div>
+                    </div>
+                </div>
+
+            </script>
+
             <script>
                 $(document).ready(function () {
-                    var dataSource = new kendo.data.DataSource({
+                        
+                    var element = $("#grid").kendoGrid({
+                        dataSource: {
+                            type: "json",
                             transport: {
-                                read:  {
-                                    url: "/products/",
-                                    type: "GET",
-                                    dataType: "json"
-                                },
-                                update: {
-                                    url: function(options) {
-                                            return "/products/" + options.id + '/';
-                                    },
-                                    type: "PUT",
-                                    contentType: "application/json", 
-                                    dataType: "json"
-                                },
-                                destroy: {
-                                    url: function(options) {
-                                            return "/products/" + options.id + '/';
-                                    },
-                                    type: "DELETE",
-                                    dataType: "json"
-                                },
-                                create: {
-                                    url: "/products/",
-                                    type: "POST",
-                                    contentType: "application/json",
-                                    dataType: "json"
-                                },
-                                parameterMap: function(data, type) {
-                                    return kendo.stringify(data);
-                                }
-                                /*
-                               // batch : true
-                                parameterMap: function(options, operation) {
-                                    if (operation !== "read" && options.models) {
-                                        return {models: kendo.stringify(options.models)};
-                                    }
-                                }
-                                */
+                                read: "/shops/"
                             },
-                            batch: false,
-                            pageSize: 10,
-                            schema: {
-                                /*
-                                // server pagination
-                                total: "count",  // total is returned in the "total" field of the response
-                                data: function(response) {
-                                      return response.results; // results in GenericView
-                                },
-                                */
-                                model: {
-                                    id: "id",
-                                    fields: {
-                                        id: { editable: false, nullable: true },
-                                        ProductName: { validation: { required: true } },
-                                        UnitPrice: { type: "number", validation: { required: true, min: 1} },
-                                        Discontinued: { type: "boolean" },
-                                        UnitsInStock: { type: "number", validation: { min: 0, required: true } }
-                                    }
-                                }
-                            }
-                            //sort: { field: "id", dir: "desc" }
+                            pageSize: 5,
+                        },
+                        height: 430,
+                        sortable: true,
+                        pageable: true,
+                        detailTemplate: kendo.template($("#template").html()),
+                        detailInit: detailInit,
+                        dataBound: function() {
+                            this.expandRow(this.tbody.find("tr.k-master-row").first());
+                        },
+                        columns: [
+                            { field: "ShopName", title: "Shop Name", width: "120px" },
+                            { field: "Address", title: "Address", width: "120px" },
+                            { field: "Country", width: "120px" },
+                            { field: "Category", width: "120px" }
+                        ]
+
                         });
 
-                    $("#grid").kendoGrid({
-                        dataSource: dataSource,
-                        pageable: true,
-                        height: 430,
-                        toolbar: ["create"],
-                        columns: [
-                            "ProductName",
-                            { field: "UnitPrice", title: "Unit Price", format: "{0:c}", width: "100px" },
-                            { field: "UnitsInStock", title:"Units In Stock", width: "100px" },
-                            { field: "Discontinued", width: "100px" },
-                            { command: ["edit", "destroy"], title: "&nbsp;", width: "172px" }],
-                        editable: "popup"
-                    });
+
+                    function detailInit(e) {
+                        var detailRow = e.detailRow;
+
+                        detailRow.find(".tabstrip").kendoTabStrip({
+                            animation: {
+                                open: { effects: "fadeIn" }
+                            }
+                        });
+
+                    detailRow.find(".products").kendoGrid({
+                            dataSource: {
+                                transport: {
+                                    read:  {
+                                        url: "/products/",
+                                        type: "GET",
+                                        dataType: "json"
+                                    },
+                                    update: {
+                                        url: function(options) {
+                                                return "/products/" + options.id + '/';
+                                        },
+                                        type: "PUT",
+                                        contentType: "application/json", 
+                                        dataType: "json"
+                                    },
+                                    destroy: {
+                                        url: function(options) {
+                                                return "/products/" + options.id + '/';
+                                        },
+                                        type: "DELETE",
+                                        dataType: "json"
+                                    },
+                                    create: {
+                                        url: "/products/",
+                                        type: "POST",
+                                        contentType: "application/json",
+                                        dataType: "json",
+                                        data: function(options) {
+                                                    return {
+                                                  shop_id: e.data.id
+                                                }
+                                        }
+                                    },
+                                    parameterMap: function(data, type) {
+                                          if (type !== "read") {
+                                            return kendo.stringify(data);
+                                          }
+                                          else {
+                                              return { shopid: e.data.id } 
+                                          }
+                                    }
+                                },
+                                filter: { field: "shop_id", operator: "eq", value: e.data.id },
+                                serverFiltering : true,
+                                batch: false,
+                                pageSize: 10,
+                                schema: {
+                                    model: {
+                                        id: "id",
+                                        fields: {
+                                            id: { editable: false, nullable: true },
+                                            ProductName: { validation: { required: true } },
+                                            UnitPrice: { type: "number", validation: { required: true, min: 1} },
+                                            Discontinued: { type: "boolean" },
+                                            UnitsInStock: { type: "number", validation: { min: 0, required: true } }
+                                        }
+                                    }
+                                }
+                            },
+                            scrollable: false,
+                            sortable: true,
+                            pageable: true,
+                            toolbar: ["create"],
+                            columns: [
+                                "ProductName",
+                                { field: "UnitPrice", title: "Unit Price", format: "{0:c}", width: "100px" },
+                                { field: "UnitsInStock", title:"Units In Stock", width: "100px" },
+                                { field: "Discontinued", width: "100px" },
+                                { command: ["edit", "destroy"], title: "&nbsp;", width: "172px" }],
+                            editable: "popup"
+                        });
+                    }
                 });
+
+
             </script>
         </div>
 
