@@ -28,8 +28,7 @@ class ProductList(mixins.CreateModelMixin,
 
     def get_queryset(self):
         """
-        Optionally restricts the returned purchases to a given user,
-        by filtering against a `username` query parameter in the URL.
+        Filter by shop
         """
         queryset = Products.objects.all()
         shop = self.request.QUERY_PARAMS.get('shopid', None)
@@ -52,7 +51,7 @@ class ProductList(mixins.CreateModelMixin,
     def pre_save(self, obj):
         shop = Shop.objects.get(id = 1)
         obj.shop = shop
-        """
+    """
 
 class ProductChange(mixins.RetrieveModelMixin,
                     mixins.UpdateModelMixin,
