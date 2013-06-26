@@ -18,34 +18,28 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from grid.models import Products
 from grid.serializers import ProductSerializer
+from rest_framework.views import APIView
+from rest_framework import mixins
+from rest_framework import viewsets
+from rest_framework import generics
 
-@api_view(['GET', 'POST'])
-def products_list(request, format=None):
 
-    if request.method == 'GET':
-        products = Products.objects.all()
-        serializer = ProductSerializer(products, many=True)
-        return Response(serializer.data)
+class ProductList(viewsets.ModelViewSet):
 
-    elif request.method == 'POST':
-        serializer = ProductSerializer(data=request.DATA)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        else:
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-class UserViewSet(viewsets.ModelViewSet):
+    queryset = Products.objects.all()
+    serializer_class = ProductSerializer
     """
-    API endpoint that allows users to be viewed or edited.
-    """
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
+    def get(self, request, *args, **kwargs):
+        return self.list(request, *args, **kwargs)
 
-class GroupViewSet(viewsets.ModelViewSet):
+    def post(self, request, *args, **kwargs):
+        return self.create(request, *args, **kwargs)
+
+    def put(self, request, *args, **kwargs):
+        return self.update(request, *args, **kwargs)
+
+    def delete(self, request, *args, **kwargs):
+        return self.destroy(request, *args, **kwargs)
     """
-    API endpoint that allows groups to be viewed or edited.
-    """
-    queryset = Group.objects.all()
-    serializer_class = GroupSerializer
+
 

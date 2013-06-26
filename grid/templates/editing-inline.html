@@ -13,13 +13,13 @@
     <script src="/static/js/ajax.post.fix.js"></script>
 </head>
 <body>
+    <H1> Kendo UI Grid CRUD Example </H1>
             <div id="example" class="k-content">
             <div id="grid"></div>
 
             <script>
                 $(document).ready(function () {
-                    var crudServiceBaseUrl = "",
-                        dataSource = new kendo.data.DataSource({
+                    var dataSource = new kendo.data.DataSource({
                             transport: {
                                 read:  {
                                     url: "/products/",
@@ -27,12 +27,17 @@
                                     dataType: "json"
                                 },
                                 update: {
-                                    url: "/products/",
+                                    url: function(options) {
+                                            return "/products/" + options.id + '/';
+                                    },
                                     type: "PUT",
+                                    contentType: "application/json", 
                                     dataType: "json"
                                 },
                                 destroy: {
-                                    url: "/products/",
+                                    url: function(options) {
+                                            return "/products/" + options.id + '/';
+                                    },
                                     type: "DELETE",
                                     dataType: "json"
                                 },
@@ -45,10 +50,25 @@
                                 parameterMap: function(data, type) {
                                     return kendo.stringify(data);
                                 }
+                                /*
+                               // batch : true
+                                parameterMap: function(options, operation) {
+                                    if (operation !== "read" && options.models) {
+                                        return {models: kendo.stringify(options.models)};
+                                    }
+                                }
+                                */
                             },
                             batch: false,
-                            pageSize: 20,
+                            pageSize: 10,
                             schema: {
+                                /*
+                                // server pagination
+                                total: "count",  // total is returned in the "total" field of the response
+                                data: function(response) {
+                                      return response.results; // results in GenericView
+                                },
+                                */
                                 model: {
                                     id: "id",
                                     fields: {

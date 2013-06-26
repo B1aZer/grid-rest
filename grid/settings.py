@@ -158,7 +158,7 @@ LOGGING = {
 }
 
 REST_FRAMEWORK = {
-    'PAGINATE_BY': 10
+    'PAGINATE_BY': None
 }
 
 # Parse database configuration from $DATABASE_URL
